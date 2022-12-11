@@ -13,5 +13,8 @@ node -e "console.log('Running Node.js ' + process.version)"
 #will enable and install the package from extras.
 sudo amazon-linux-extras install -y nginx1
 
+#Restarting the service after
 sudo systemctl start nginx.service
+
+
 

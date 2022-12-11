@@ -1,0 +1,41 @@
+---
+ - hosts: prod
+   become: yes
+   vars: 
+      nodesource_version: setup_10.x
+
+   tasks: 
+
+     - name: "Updating the cache"
+       yum: update_cache=yes
+       
+     - name: "Downloading the nodesource rpm repo"
+       ansible.builtin.shell: curl -L -o nodesource_setup.sh https://rpm.nodesource.com/setup_10.x
+       tags: nodesource
+     
+     - name: "Running the nodesource setup_10 script"
+       ansible.builtin.shell: bash nodesource_setup.sh
+        
+      #Before installing Node.js it is important to clean all 
+      #the cached information from yum. Clearing the cache 
+      #will ensure that yum uses the network connection 
+      #to get Node.js from our new NodeSource Repository 
+      #(which will prevent any potential conflicts caused by outdated packages):  
+     - name: "Cleaning up the old cache"
+       ansible.builtin.shell: yum clean all -y 
+
+      #For Yum queries to get faster. 
+     - name: "Caching the new yum "
+       ansible.builtin.shell: yum makecache fast -y
+
+      #To compile and install native add-ons from npm we also need to install build tools:
+     - name: "Running the nodesource setup_10 script"
+       ansible.builtin.shell: yum install -y gcc-c++ make -y
+
+     - name: "Installing Node"
+       ansible.builtin.shell: sudo yum install -y nodejs
+
+
+
+
+      

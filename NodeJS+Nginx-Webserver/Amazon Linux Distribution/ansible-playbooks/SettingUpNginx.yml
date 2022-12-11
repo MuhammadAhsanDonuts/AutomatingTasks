@@ -1,0 +1,12 @@
+---
+ - hosts: prod
+   become: yes
+
+  
+   tasks: 
+
+     - name: Installing Nginx with amzon-extras
+       ansible.builtin.shell: amazon-linux-extras install nginx1 -y
+
+    
+   

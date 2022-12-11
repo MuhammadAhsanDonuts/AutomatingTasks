@@ -1,0 +1,52 @@
+---
+
+- name: "Setting up the server for nodeJs Application and Reverse Proxy Nginx"
+  become: yes
+  hosts: prod
+  ##serial directive will ensure the task run at one server at one time before moving to next. 
+  serial: 1 
+  vars:
+     version: 16.14.0
+
+  
+    
+
+  tasks: 
+
+    - name: Enabling the EPEL Repository
+      shell: amazon-linux-extras enable epel
+        
+    - name: Installing EPEL-REPOSITORY via shell
+      yum: 
+        name: epel-release
+        state: present
+    
+    - name: Installing NodeJs with NVM
+      shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh 
+
+    - name: Running NVM script
+      shell: bash install_nvm.sh
+   
+  #  - name: install the latest version of nginx
+   #   yum:
+    #    name: nginx
+     #   state: presnet
+
+    ##- name: Enabling Nginx
+      ##service: 
+        #state: enabled
+
+ #   - name: Starting Nginx
+  #    service: 
+   #      name: nginx
+    #     state: started
+
+   # - name: Remove httpd server
+     #yum: 
+       # name: httpd
+      #  state: absent
+
+
+
+
+

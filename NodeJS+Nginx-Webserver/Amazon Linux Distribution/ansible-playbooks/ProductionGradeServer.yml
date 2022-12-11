@@ -1,0 +1,129 @@
+---
+ - hosts: prod
+   become: yes
+   vars: 
+      nodesource_version: setup_18.x
+      NODE_VERSION: 12
+#THIS PLAYBOOK IS WRITTEN BY AHSAN SHAIKH
+   tasks: 
+
+     - name: "Updating the cache"
+       yum: update_cache=yes
+
+     - name: Enabling the EPEL Repository for extra packages to be installed. 
+       shell: amazon-linux-extras enable epel
+        
+     - name: Installing EPEL-REPOSITORY via shell
+       yum: 
+        name: epel-release
+        state: present
+
+     - name: Installing Nginx with amzon-extras
+       ansible.builtin.shell: amazon-linux-extras install nginx1 -y
+       tags: nginx
+
+#http://imperialwicket.com/aws-install-nginx-and-php-fpm-on-amazon-linux/
+# CONTINUED AFTER THIS
+     - name: Starting Nginx service; Check HTTP after this task. 
+       service:
+          name: nginx.service
+          state: started
+       tags: service
+
+    ##STARTING WORKING ON POSTGRESQL
+     - name: Enabling Postgres from Linux Extras
+       ansible.builtin.shell: sudo amazon-linux-extras enable postgresql13 
+
+     - name: Installing Postgresql 
+       ansible.builtin.shell: sudo yum install postgresql postgresql-server -y
+       tags: post
+
+     - name: Installing Postgresql 
+       ansible.builtin.shell: postgresql-setup initdb
+       tags: post
+
+     - name: Make sure the postgres is started
+       ansible.builtin.systemd:
+          name: postgresql.service
+          state: started
+       tags: tag1
+
+     - name: Make sure the postgres is started
+       ansible.builtin.systemd:
+          name: postgresql.service
+          enabled: yes
+       tags: tag2   
+      #PLAYBOOK IS WORKING FINE AT THIS POINT 26/10/22 3:27PM EXCEPT THE INIT_DB
+      #FOR MORE INFORMATION, PLEASE VISIT: 
+      #http://howto.philippkeller.com/2022/05/03/How-to-install-postgres-on-amazon-linux-2/
+      #//FOLLOW THE ABOVE LINK FOR GOOD UNDERSTANDING OF POSTGRESQL ON AMAZON LINUX
+
+
+      #WORKING ON NODEJS SETUP
+      #https://techviewleo.com/how-to-install-nodejs-on-amazon-linux/
+      #FOLLOW THIS LINK FOR NODEJS SETUP 
+     - name: "Updating the cache twice"
+       yum: update_cache=yes
+    #https://awswithatiq.com/how-to-install-nodejs-on-amazon-linux-2/
+     #FOLLOW THE ABOVE LINK FOR SETTING UP NODE HERE. 
+     - name: First, Install NVM using CURL
+       ansible.builtin.shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+
+     #- name: EXPORT PATHS
+       ansible.builtin.shell: export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}"] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")" [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+     - name: Verify NVM has been installed
+       ansible.builtin.shell: command -v nvm
+
+     - name: Installing NodeJS
+       ansible.builtin.shell: nvm install 11
+##//NVM IS HAVING SOME PROBLEM INSTALLING WITH ANSIBLE, OTHERWISE, IT CAN BE INSTALLED WITH THE ABOVE COMMANDS
+
+
+#https://sysadminxpert.com/how-to-install-redis-on-amazon-linux-or-centos/
+#FOLLOW ABOVE LINK FOR INSTALLING REDIS
+
+     - name: Clean all yum
+       ansible.builtin.shell: yum clean all -y
+       
+     - name: Clean repos
+       ansible.builtin.shell: yum repolist -y 
+
+     - name: Install Redis
+       ansible.builtin.shell: sudo yum install redis -y
+       tags: redis
+
+     - name: Start Redis
+       ansible.builtin.systemd:
+          name: redis
+          state: started
+       tags: start 
+   
+       
+       
+
+
+  #   - name: Install a list of packages with a list variable
+   #    ansible.builtin.yum:
+   #     name: "{{ packages }}"
+    #   vars:
+     #   packages:
+      #  - curl
+       # - vim
+       # - git
+       # - wget
+       # - '@Development tools'
+       # - nmap
+       # - net-tools
+
+      #EPEL (Extra packages for Enterprise Linux)
+     #- name: Execute the command in remote shell; stdout goes to the specified file on the remote
+      # ansible.builtin.shell: amazon-linux-extras install epel -y
+       
+    # - name: Upgrade all packages
+     #  ansible.builtin.shell: yum upgrade -y
+     #  tags: upgrade
+       #This needs to be done with the yum module, just need to figure out -y permission to it. 
+
+     
+      
